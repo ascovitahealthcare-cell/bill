@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedBill Pro — Indian Pharma Billing Software</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #0099cc;
+    --green: #00e676;
+    --yellow: #ffd600;
+    --red: #ff4444;
+    --orange: #ff9800;
+    --purple: #a855f7;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #4a6080;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Sora', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:var(--sans); min-height:100vh; display:flex; overflow:hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px; min-height: 100vh; background: var(--surface);
+    border-right: 1px solid var(--border); display:flex; flex-direction:column;
+    flex-shrink:0; position:relative; overflow:hidden;
+  }
+  .sidebar::before {
+    content:''; position:absolute; top:-80px; left:-60px;
+    width:200px; height:200px; background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+    pointer-events:none;
+  }
+  .logo {
+    padding: 20px 18px 16px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo-icon {
+    width:34px; height:34px; background:var(--accent); border-radius:8px;
+    display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;
+  }
+  .logo-text { font-size:15px; font-weight:700; color:var(--text); line-height:1.2; }
+  .logo-sub { font-size:10px; color:var(--accent); font-family:var(--mono); letter-spacing:1px; }
+
+  .nav-section { padding: 10px 0; }
+  .nav-label {
+    font-size:9px; font-family:var(--mono); letter-spacing:2px; color:var(--text3);
+    padding: 8px 18px 4px; text-transform:uppercase;
+  }
+  .nav-item {
+    display:flex; align-items:center; gap:10px; padding:9px 18px;
+    cursor:pointer; border-left:3px solid transparent; transition:all 0.2s;
+    font-size:13px; color:var(--text2); position:relative;
+  }
+  .nav-item:hover { background:rgba(0,212,255,0.05); color:var(--text); }
+  .nav-item.active {
+    background:rgba(0,212,255,0.08); color:var(--accent);
+    border-left-color:var(--accent);
+  }
+  .nav-item .icon { font-size:15px; width:18px; text-align:center; }
+  .nav-badge {
+    margin-left:auto; background:var(--red); color:#fff; font-size:9px;
+    padding:2px 6px; border-radius:10px; font-family:var(--mono);
+  }
+  .nav-badge.green { background:var(--green); color:#000; }
+  .nav-badge.yellow { background:var(--yellow); color:#000; }
+
+  .sidebar-bottom {
+    margin-top:auto; padding:14px 18px; border-top:1px solid var(--border);
+  }
+  .user-info { display:flex; align-items:center; gap:10px; }
+  .user-avatar {
+    width:32px; height:32px; background:linear-gradient(135deg, var(--accent), var(--purple));
+    border-radius:8px; display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:700; color:#000;
+  }
+  .user-name { font-size:12px; font-weight:600; }
+  .user-role { font-size:10px; color:var(--text3); font-family:var(--mono); }
+
+  /* MAIN */
+  .main { flex:1; overflow-y:auto; display:flex; flex-direction:column; }
+
+  /* TOPBAR */
+  .topbar {
+    background:var(--surface); border-bottom:1px solid var(--border);
+    padding:14px 28px; display:flex; align-items:center; gap:16px; flex-shrink:0;
+    position:sticky; top:0; z-index:10;
+  }
+  .topbar-title { font-size:18px; font-weight:700; flex:1; }
+  .topbar-title span { color:var(--accent); }
+  .search-bar {
+    display:flex; align-items:center; background:var(--bg); border:1px solid var(--border);
+    border-radius:8px; padding:8px 14px; gap:8px; width:280px;
+  }
+  .search-bar input {
+    background:none; border:none; outline:none; color:var(--text);
+    font-size:13px; font-family:var(--sans); width:100%;
+  }
+  .search-bar input::placeholder { color:var(--text3); }
+  .top-actions { display:flex; gap:8px; }
+  .btn {
+    padding:8px 16px; border-radius:8px; border:none; cursor:pointer;
+    font-family:var(--sans); font-size:13px; font-weight:600; transition:all 0.2s;
+  }
+  .btn-primary { background:var(--accent); color:#000; }
+  .btn-primary:hover { background:#33ddff; transform:translateY(-1px); }
+  .btn-ghost {
+    background:transparent; color:var(--text2); border:1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+  .btn-sm { padding:6px 12px; font-size:12px; }
+
+  /* CONTENT */
+  .content { padding:24px 28px; flex:1; }
+
+  /* STAT CARDS */
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+  .stat-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px;
+    padding:18px; position:relative; overflow:hidden; cursor:pointer; transition:all 0.2s;
+  }
+  .stat-card:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .stat-card::after {
+    content:''; position:absolute; top:0; right:0;
+    width:80px; height:80px; border-radius:0 12px 0 80px;
+    opacity:0.06;
+  }
+  .stat-card.blue::after { background:var(--accent); }
+  .stat-card.green::after { background:var(--green); }
+  .stat-card.yellow::after { background:var(--yellow); }
+  .stat-card.red::after { background:var(--red); }
+  .stat-label { font-size:11px; color:var(--text3); font-family:var(--mono); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+  .stat-value { font-size:26px; font-weight:800; font-family:var(--mono); }
+  .stat-value.blue { color:var(--accent); }
+  .stat-value.green { color:var(--green); }
+  .stat-value.yellow { color:var(--yellow); }
+  .stat-value.red { color:var(--red); }
+  .stat-change { font-size:11px; margin-top:4px; color:var(--text3); }
+  .stat-change.up { color:var(--green); }
+  .stat-change.down { color:var(--red); }
+
+  /* GRID LAYOUT */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .grid-3 { display:grid; grid-template-columns:2fr 1fr 1fr; gap:16px; margin-bottom:16px; }
+
+  /* PANEL */
+  .panel {
+    background:var(--surface); border:1px solid var(--border); border-radius:12px; overflow:hidden;
+  }
+  .panel-header {
+    padding:14px 18px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .panel-title { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+  .panel-dot { width:8px; height:8px; border-radius:50%; }
+  .panel-dot.blue { background:var(--accent); box-shadow:0 0 8px var(--accent); }
+  .panel-dot.green { background:var(--green); box-shadow:0 0 8px var(--green); }
+  .panel-dot.red { background:var(--red); box-shadow:0 0 8px var(--red); }
+  .panel-dot.yellow { background:var(--yellow); box-shadow:0 0 8px var(--yellow); }
+  .panel-body { padding:16px 18px; }
+
+  /* TABLE */
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  thead th {
+    text-align:left; padding:8px 12px; font-size:10px; font-family:var(--mono);
+    letter-spacing:1px; text-transform:uppercase; color:var(--text3);
+    border-bottom:1px solid var(--border); font-weight:500;
+  }
+  tbody td { padding:10px 12px; border-bottom:1px solid rgba(30,45,69,0.5); color:var(--text2); }
+  tbody tr:hover { background:rgba(0,212,255,0.03); }
+  tbody tr:last-child td { border-bottom:none; }
+
+  /* BADGE */
+  .badge {
+    display:inline-flex; align-items:center; padding:3px 9px; border-radius:20px;
+    font-size:10px; font-family:var(--mono); font-weight:600; letter-spacing:0.5px;
+  }
+  .badge-green { background:rgba(0,230,118,0.12); color:var(--green); border:1px solid rgba(0,230,118,0.2); }
+  .badge-red { background:rgba(255,68,68,0.12); color:var(--red); border:1px solid rgba(255,68,68,0.2); }
+  .badge-yellow { background:rgba(255,214,0,0.12); color:var(--yellow); border:1px solid rgba(255,214,0,0.2); }
+  .badge-blue { background:rgba(0,212,255,0.12); color:var(--accent); border:1px solid rgba(0,212,255,0.2); }
+  .badge-purple { background:rgba(168,85,247,0.12); color:var(--purple); border:1px solid rgba(168,85,247,0.2); }
+  .badge-orange { background:rgba(255,152,0,0.12); color:var(--orange); border:1px solid rgba(255,152,0,0.2); }
+
+  /* ALERTS */
+  .alert-list { display:flex; flex-direction:column; gap:10px; }
+  .alert-item {
+    display:flex; align-items:flex-start; gap:12px; padding:12px;
+    background:var(--surface2); border-radius:8px; border-left:3px solid;
+  }
+  .alert-item.warn { border-color:var(--yellow); }
+  .alert-item.danger { border-color:var(--red); }
+  .alert-item.info { border-color:var(--accent); }
+  .alert-icon { font-size:16px; margin-top:1px; }
+  .alert-title { font-size:12px; font-weight:600; margin-bottom:2px; }
+  .alert-desc { font-size:11px; color:var(--text3); font-family:var(--mono); }
+
+  /* PROGRESS */
+  .progress-item { margin-bottom:14px; }
+  .progress-label { display:flex; justify-content:space-between; font-size:12px; margin-bottom:6px; color:var(--text2); }
+  .progress-bar { height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:3px; transition:width 1s; }
+  .progress-fill.blue { background:linear-gradient(90deg, var(--accent2), var(--accent)); }
+  .progress-fill.green { background:linear-gradient(90deg, #00a848, var(--green)); }
+  .progress-fill.yellow { background:linear-gradient(90deg, #cc9900, var(--yellow)); }
+  .progress-fill.red { background:linear-gradient(90deg, #cc0000, var(--red)); }
+
+  /* TABS */
+  .tabs { display:flex; gap:4px; margin-bottom:16px; }
+  .tab {
+    padding:8px 16px; border-radius:8px; cursor:pointer; font-size:12px; font-weight:600;
+    background:var(--surface2); color:var(--text3); border:1px solid var(--border);
+    transition:all 0.2s;
+  }
+  .tab.active { background:rgba(0,212,255,0.1); color:var(--accent); border-color:var(--accent); }
+  .tab:hover:not(.active) { color:var(--text); }
+
+  /* FORM GRID */
+  .form-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+  .form-group { display:flex; flex-direction:column; gap:5px; }
+  .form-group label { font-size:11px; font-family:var(--mono); color:var(--text3); letter-spacing:0.5px; text-transform:uppercase; }
+  .form-input {
+    background:var(--surface2); border:1px solid var(--border); border-radius:7px;
+    padding:9px 12px; font-size:13px; color:var(--text); font-family:var(--sans); outline:none;
+    transition:border-color 0.2s;
+  }
+  .form-input:focus { border-color:var(--accent); }
+  .form-input::placeholder { color:var(--text3); }
+  select.form-input option { background:var(--surface); }
+
+  /* MINI CHART */
+  .sparkline { display:flex; align-items:flex-end; gap:3px; height:40px; }
+  .spark-bar {
+    flex:1; background:rgba(0,212,255,0.15); border-radius:3px 3px 0 0;
+    transition:background 0.2s; cursor:pointer;
+  }
+  .spark-bar:hover { background:rgba(0,212,255,0.4); }
+  .spark-bar.active { background:var(--accent); }
+
+  /* QUICK ACTIONS */
+  .quick-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:24px; }
+  .quick-action {
+    background:var(--surface); border:1px solid var(--border); border-radius:10px;
+    padding:14px; text-align:center; cursor:pointer; transition:all 0.2s;
+  }
+  .quick-action:hover { border-color:var(--accent); background:rgba(0,212,255,0.05); transform:translateY(-2px); }
+  .qa-icon { font-size:22px; margin-bottom:6px; }
+  .qa-label { font-size:11px; font-weight:600; color:var(--text2); }
+
+  /* PAGE SECTIONS */
+  .page-section { display:none; }
+  .page-section.active { display:block; }
+
+  /* INVOICE */
+  .invoice-header {
+    background:linear-gradient(135deg, var(--surface2), var(--surface));
+    border:1px solid var(--border); border-radius:12px; padding:20px 24px;
+    margin-bottom:16px;
+  }
+  .invoice-meta { display:flex; justify-content:space-between; align-items:flex-start; }
+  .inv-no { font-size:22px; font-weight:800; font-family:var(--mono); color:var(--accent); }
+  .inv-date { font-size:11px; color:var(--text3); font-family:var(--mono); margin-top:2px; }
+  .inv-badge { background:rgba(0,230,118,0.15); color:var(--green); border:1px solid rgba(0,230,118,0.3); padding:4px 12px; border-radius:20px; font-size:11px; font-family:var(--mono); }
+
+  /* GST BREAKDOWN */
+  .gst-box {
+    background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px;
+  }
+  .gst-row { display:flex; justify-content:space-between; padding:5px 0; font-size:13px; border-bottom:1px solid var(--border); }
+  .gst-row:last-child { border-bottom:none; font-weight:700; color:var(--text); font-size:14px; }
+  .gst-row.total { border-top:2px solid var(--border); margin-top:4px; padding-top:10px; }
+
+  /* STATUS DOT */
+  .status-dot { width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:6px; }
+  .status-dot.online { background:var(--green); box-shadow:0 0 6px var(--green); }
+  .status-dot.warn { background:var(--yellow); box-shadow:0 0 6px var(--yellow); }
+  .status-dot.off { background:var(--red); box-shadow:0 0 6px var(--red); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+  /* RESPONSIVE TEXT */
+  .mono { font-family:var(--mono); }
+  .text-sm { font-size:12px; }
+  .text-xs { font-size:11px; }
+  .text-accent { color:var(--accent); }
+  .text-green { color:var(--green); }
+  .text-red { color:var(--red); }
+  .text-yellow { color:var(--yellow); }
+  .text-muted { color:var(--text3); }
+  .fw-bold { font-weight:700; }
+
+  /* ANIMATION */
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  .pulse { animation:pulse 2s infinite; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .fadein { animation:fadeIn 0.3s ease; }
+
+  /* DIVIDER */
+  .divider { height:1px; background:var(--border); margin:14px 0; }
+
+  /* EXPIRY WARNING */
+  .expiry-item {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 0; border-bottom:1px solid var(--border);
+  }
+  .expiry-item:last-child { border-bottom:none; }
+  .expiry-name { font-size:13px; font-weight:600; }
+  .expiry-batch { font-size:11px; color:var(--text3); font-family:var(--mono); }
+  .expiry-days { font-size:12px; font-weight:700; font-family:var(--mono); }
+
+  /* SUMMARY ROW */
+  .sum-row { display:flex; justify-content:space-between; padding:8px 0; font-size:13px; }
+
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">💊</div>
+    <div>
+      <div class="logo-text">MedBill Pro</div>
+      <div class="logo-sub">PHARMA ERP v2.0</div>
+    </div>
+  </div>
+
+  <div style="overflow-y:auto; flex:1;">
+    <div class="nav-section">
+      <div class="nav-label">Core</div>
+      <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">⊞</span> Dashboard</div>
+      <div class="nav-item" onclick="showPage('billing')"><span class="icon">🧾</span> Billing / Invoice</div>
+      <div class="nav-item" onclick="showPage('inventory')"><span class="icon">📦</span> Inventory <span class="nav-badge yellow">12</span></div>
+      <div class="nav-item" onclick="showPage('purchase')"><span class="icon">🛒</span> Purchase / GRN</div>
+      <div class="nav-item" onclick="showPage('sales')"><span class="icon">📈</span> Sales Register</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Masters</div>
+      <div class="nav-item" onclick="showPage('products')"><span class="icon">💉</span> Product Master</div>
+      <div class="nav-item" onclick="showPage('customers')"><span class="icon">👥</span> Customers</div>
+      <div class="nav-item" onclick="showPage('suppliers')"><span class="icon">🏭</span> Suppliers</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Compliance</div>
+      <div class="nav-item" onclick="showPage('gst')"><span class="icon">📋</span> GST / Tax <span class="nav-badge">!</span></div>
+      <div class="nav-item" onclick="showPage('expiry')"><span class="icon">⏰</span> Expiry Control <span class="nav-badge">7</span></div>
+      <div class="nav-item" onclick="showPage('regulatory')"><span class="icon">🔏</span> Drug Compliance</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Finance</div>
+      <div class="nav-item" onclick="showPage('accounts')"><span class="icon">💰</span> Accounts</div>
+      <div class="nav-item" onclick="showPage('returns')"><span class="icon">↩️</span> Returns</div>
+      <div class="nav-item" onclick="showPage('reports')"><span class="icon">📊</span> Reports</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">System</div>
+      <div class="nav-item" onclick="showPage('settings')"><span class="icon">⚙️</span> Company Setup</div>
+      <div class="nav-item" onclick="showPage('security')"><span class="icon">🔐</span> Security / Audit</div>
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-info">
+      <div class="user-avatar">RK</div>
+      <div>
+        <div class="user-name">Rajesh Kumar</div>
+        <div class="user-role"><span class="status-dot online"></span>ADMIN</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN AREA -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard <span>Overview</span></div>
+    <div class="search-bar">
+      <span style="color:var(--text3)">🔍</span>
+      <input type="text" placeholder="Search medicine, batch, customer...">
+    </div>
+    <div class="top-actions">
+      <button class="btn btn-ghost btn-sm">🔔 Alerts</button>
+      <button class="btn btn-primary btn-sm" onclick="showPage('billing')">+ New Invoice</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="page-dashboard" class="page-section active fadein">
+
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-label">Today's Sales</div>
+          <div class="stat-value blue mono">₹84,230</div>
+          <div class="stat-change up">↑ 12.4% vs yesterday</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Invoices Today</div>
+          <div class="stat-value green mono">127</div>
+          <div class="stat-change up">↑ 8 more than avg</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">Near Expiry</div>
+          <div class="stat-value yellow mono">47</div>
+          <div class="stat-change">products within 90 days</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Pending Payment</div>
+          <div class="stat-value red mono">₹2.3L</div>
+          <div class="stat-change down">↓ 3 overdue accounts</div>
+        </div>
+      </div>
+
+      <div class="quick-actions">
+        <div class="quick-action" onclick="showPage('billing')"><div class="qa-icon">🧾</div><div class="qa-label">New Invoice</div></div>
+        <div class="quick-action" onclick="showPage('purchase')"><div class="qa-icon">🛒</div><div class="qa-label">Purchase Entry</div></div>
+        <div class="quick-action" onclick="showPage('inventory')"><div class="qa-icon">📦</div><div class="qa-label">Stock Check</div></div>
+        <div class="quick-action" onclick="showPage('gst')"><div class="qa-icon">📋</div><div class="qa-label">GST Report</div></div>
+        <div class="quick-action" onclick="showPage('returns')"><div class="qa-icon">↩️</div><div class="qa-label">Process Return</div></div>
+        <div class="quick-action" onclick="showPage('expiry')"><div class="qa-icon">⏰</div><div class="qa-label">Expiry Alert</div></div>
+        <div class="quick-action" onclick="showPage('customers')"><div class="qa-icon">👥</div><div class="qa-label">Add Customer</div></div>
+        <div class="quick-action" onclick="showPage('reports')"><div class="qa-icon">📊</div><div class="qa-label">P&L Report</div></div>
+      </div>
+
+      <div class="grid-3">
+        <!-- Recent Invoices -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-dot blue"></div>Recent Invoices</div>
+            <button class="btn btn-ghost btn-sm">View All</button>
+          </div>
+          <div class="panel-body" style="padding:0">
+            <table>
+              <thead><tr><th>Invoice</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="mono text-accent">INV-4821</td><td>City Medical</td><td class="mono">₹12,400</td><td><span class="badge badge-green">PAID</span></td></tr>
+                <tr><td class="mono text-accent">INV-4820</td><td>HealthPlus</td><td class="mono">₹8,750</td><td><span class="badge badge-yellow">PENDING</span></td></tr>
+                <tr><td class="mono text-accent">INV-4819</td><td>MediCare RX</td><td class="mono">₹22,100</td><td><span class="badge badge-green">PAID</span></td></tr>
+                <tr><td class="mono text-accent">INV-4818</td><td>Apollo Dist.</td><td class="mono">₹5,300</td><td><span class="badge badge-red">OVERDUE</span></td></tr>
+                <tr><td class="mono text-accent">INV-4817</td><td>Sunrise Pharma</td><td class="mono">₹18,900</td><td><span class="badge badge-green">PAID</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Alerts Panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-dot red pulse"></div>Critical Alerts</div>
+          </div>
+          <div class="panel-body">
+            <div class="alert-list">
+              <div class="alert-item danger">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                  <div class="alert-title">Expired Stock Found</div>
+                  <div class="alert-desc">AMOX-500 · Batch B2204 · 3 units</div>
+                </div>
+              </div>
+              <div class="alert-item warn">
+                <span class="alert-icon">🕐</span>
+                <div>
+                  <div class="alert-title">7 products near expiry</div>
+                  <div class="alert-desc">Within 30 days — action required</div>
+                </div>
+              </div>
+              <div class="alert-item warn">
+                <span class="alert-icon">📉</span>
+                <div>
+                  <div class="alert-title">Low Stock: 5 items</div>
+                  <div class="alert-desc">Below minimum reorder level</div>
+                </div>
+              </div>
+              <div class="alert-item info">
+                <span class="alert-icon">📋</span>
+                <div>
+                  <div class="alert-title">GSTR-1 Due in 3 days</div>
+                  <div class="alert-desc">File before 11th — ₹1.2L pending</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock Health -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-dot green"></div>Stock Health</div>
+          </div>
+          <div class="panel-body">
+            <div class="progress-item">
+              <div class="progress-label"><span>Antibiotics</span><span class="mono">847 units</span></div>
+              <div class="progress-bar"><div class="progress-fill blue" style="width:78%"></div></div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-label"><span>Analgesics</span><span class="mono">1,240 units</span></div>
+              <div class="progress-bar"><div class="progress-fill green" style="width:92%"></div></div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-label"><span>Vitamins</span><span class="mono">380 units</span></div>
+              <div class="progress-bar"><div class="progress-fill yellow" style="width:31%"></div></div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-label"><span>Cardiac Meds</span><span class="mono">62 units</span></div>
+              <div class="progress-bar"><div class="progress-fill red" style="width:18%"></div></div>
+            </div>
+            <div class="progress-item">
+              <div class="progress-label"><span>Diabetic Meds</span><span class="mono">514 units</span></div>
+              <div class="progress-bar"><div class="progress-fill blue" style="width:55%"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Trend + Top Products -->
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-dot blue"></div>Sales Trend — Last 12 Months</div>
+          </div>
+          <div class="panel-body">
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+              <div style="flex:1; text-align:center;">
+                <div class="text-xs text-muted mono">THIS MONTH</div>
+                <div style="font-size:20px; font-weight:800; color:var(--accent); font-family:var(--mono);">₹6.8L</div>
+              </div>
+              <div style="width:1px; background:var(--border);"></div>
+              <div style="flex:1; text-align:center;">
+                <div class="text-xs text-muted mono">AVG MONTHLY</div>
+                <div style="font-size:20px; font-weight:800; color:var(--green); font-family:var(--mono);">₹5.4L</div>
+              </div>
+              <div style="width:1px; background:var(--border);"></div>
+              <div style="flex:1; text-align:center;">
+                <div class="text-xs text-muted mono">YTD TOTAL</div>
+                <div style="font-size:20px; font-weight:800; color:var(--yellow); font-family:var(--mono);">₹48L</div>
+              </div>
+            </div>
+            <div class="sparkline">
+              <div class="spark-bar" style="height:55%"></div>
+              <div class="spark-bar" style="height:62%"></div>
+              <div class="spark-bar" style="height:45%"></div>
+              <div class="spark-bar" style="height:71%"></div>
+              <div class="spark-bar" style="height:58%"></div>
+              <div class="spark-bar" style="height:80%"></div>
+              <div class="spark-bar" style="height:67%"></div>
+              <div class="spark-bar" style="height:73%"></div>
+              <div class="spark-bar" style="height:85%"></div>
+              <div class="spark-bar" style="height:79%"></div>
+              <div class="spark-bar" style="height:90%"></div>
+              <div class="spark-bar active" style="height:100%"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:10px; color:var(--text3); font-family:var(--mono);">
+              <span>APR</span><span>MAY</span><span>JUN</span><span>JUL</span><span>AUG</span><span>SEP</span><span>OCT</span><span>NOV</span><span>DEC</span><span>JAN</span><span>FEB</span><span style="color:var(--accent)">MAR</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-dot yellow"></div>Top Products This Month</div>
+          </div>
+          <div class="panel-body" style="padding:0">
+            <table>
+              <thead><tr><th>#</th><th>Product</th><th>Qty</th><th>Revenue</th></tr></thead>
+              <tbody>
+                <tr><td class="mono text-muted">01</td><td><div style="font-size:12px;font-weight:600">Paracetamol 500</div><div class="text-xs text-muted">Generic</div></td><td class="mono">2,840</td><td class="mono text-green">₹28,400</td></tr>
+                <tr><td class="mono text-muted">02</td><td><div style="font-size:12px;font-weight:600">Azithromycin 250</div><div class="text-xs text-muted">Antibiotic</div></td><td class="mono">1,200</td><td class="mono text-green">₹42,000</td></tr>
+                <tr><td class="mono text-muted">03</td><td><div style="font-size:12px;font-weight:600">Metformin 500</div><div class="text-xs text-muted">Diabetic</div></td><td class="mono">980</td><td class="mono text-green">₹19,600</td></tr>
+                <tr><td class="mono text-muted">04</td><td><div style="font-size:12px;font-weight:600">Atorvastatin 10</div><div class="text-xs text-muted">Cardiac</div></td><td class="mono">756</td><td class="mono text-green">₹37,800</td></tr>
+                <tr><td class="mono text-muted">05</td><td><div style="font-size:12px;font-weight:600">Omeprazole 20</div><div class="text-xs text-muted">Gastric</div></td><td class="mono">640</td><td class="mono text-green">₹12,800</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BILLING PAGE ===== -->
+    <div id="page-billing" class="page-section fadein">
+      <div class="tabs">
+        <div class="tab active">Retail Invoice</div>
+        <div class="tab">Wholesale Invoice</div>
+        <div class="tab">Credit Note</div>
+        <div class="tab">Debit Note</div>
+      </div>
+
+      <div class="invoice-header">
+        <div class="invoice-meta">
+          <div>
+            <div class="inv-no">INV-4822</div>
+            <div class="inv-date">Date: 10 Mar 2026 | FY 2025-26 | Branch: Main Store</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <span class="inv-badge">● DRAFT</span>
+            <button class="btn btn-ghost btn-sm">🖨 Print</button>
+            <button class="btn btn-primary btn-sm">Save Invoice</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Customer Details</div></div>
+          <div class="panel-body">
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="form-group">
+                <label>Customer Name</label>
+                <input class="form-input" type="text" value="City Medical Store" placeholder="Search customer...">
+              </div>
+              <div class="form-group">
+                <label>GSTIN</label>
+                <input class="form-input" type="text" value="29AABCU9603R1ZB" placeholder="GSTIN">
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input class="form-input" type="text" value="9876543210" placeholder="Mobile">
+              </div>
+              <div class="form-group">
+                <label>Payment Mode</label>
+                <select class="form-input">
+                  <option>Cash</option><option selected>Credit</option><option>UPI</option><option>Cheque</option><option>NEFT</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Invoice Settings</div></div>
+          <div class="panel-body">
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="form-group">
+                <label>Invoice Type</label>
+                <select class="form-input"><option>Tax Invoice (GST)</option><option>Retail Invoice</option><option>Wholesale</option></select>
+              </div>
+              <div class="form-group">
+                <label>Batch Selection</label>
+                <select class="form-input"><option selected>FEFO (Exp First)</option><option>FIFO</option><option>Manual</option></select>
+              </div>
+              <div class="form-group">
+                <label>Sales Type</label>
+                <select class="form-input"><option>B2B</option><option>B2C</option></select>
+              </div>
+              <div class="form-group">
+                <label>Discount %</label>
+                <input class="form-input" type="number" value="5" min="0" max="100">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Lines -->
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-header">
+          <div class="panel-title">🔍 Add Products (Barcode / Search)</div>
+          <button class="btn btn-primary btn-sm">+ Add Row</button>
+        </div>
+        <div class="panel-body" style="padding:0">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th><th>Batch</th><th>Expiry</th><th>MRP</th><th>Rate</th><th>Qty</th><th>Disc%</th><th>GST%</th><th>Amount</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="font-size:12px;font-weight:600">Amoxicillin 500mg</div>
+                  <div class="text-xs text-muted mono">HSN: 30041090</div>
+                </td>
+                <td class="mono text-accent">B2401</td>
+                <td class="text-green mono">Jun 2026</td>
+                <td class="mono">₹120</td>
+                <td><input class="form-input" style="width:70px;padding:5px 8px;" type="number" value="105"></td>
+                <td><input class="form-input" style="width:60px;padding:5px 8px;" type="number" value="10"></td>
+                <td class="mono">5%</td>
+                <td><span class="badge badge-blue">12%</span></td>
+                <td class="mono fw-bold text-accent">₹997.50</td>
+                <td style="color:var(--red);cursor:pointer;text-align:center;">✕</td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-size:12px;font-weight:600">Paracetamol 500mg</div>
+                  <div class="text-xs text-muted mono">HSN: 29242900</div>
+                </td>
+                <td class="mono text-accent">B2402</td>
+                <td class="text-green mono">Dec 2026</td>
+                <td class="mono">₹42</td>
+                <td><input class="form-input" style="width:70px;padding:5px 8px;" type="number" value="38"></td>
+                <td><input class="form-input" style="width:60px;padding:5px 8px;" type="number" value="20"></td>
+                <td class="mono">0%</td>
+                <td><span class="badge badge-blue">0%</span></td>
+                <td class="mono fw-bold text-accent">₹760.00</td>
+                <td style="color:var(--red);cursor:pointer;text-align:center;">✕</td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-size:12px;font-weight:600">Metformin 850mg</div>
+                  <div class="text-xs text-muted mono">HSN: 29336990</div>
+                </td>
+                <td class="mono text-accent">B2399</td>
+                <td class="text-yellow mono">Apr 2026</td>
+                <td class="mono">₹85</td>
+                <td><input class="form-input" style="width:70px;padding:5px 8px;" type="number" value="78"></td>
+                <td><input class="form-input" style="width:60px;padding:5px 8px;" type="number" value="15"></td>
+                <td class="mono">3%</td>
+                <td><span class="badge badge-blue">5%</span></td>
+                <td class="mono fw-bold text-accent">₹1,204.65</td>
+                <td style="color:var(--red);cursor:pointer;text-align:center;">✕</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- GST Summary -->
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Schedule H/H1 Drug Log</div></div>
+          <div class="panel-body">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">⚠️ Following items require prescription & doctor details:</div>
+            <div style="background:var(--surface2);border:1px solid var(--yellow);border-radius:8px;padding:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+                <span class="fw-bold">Amoxicillin 500mg</span>
+                <span class="badge badge-yellow">Schedule H</span>
+              </div>
+              <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+                <div class="form-group">
+                  <label>Doctor Name</label>
+                  <input class="form-input" type="text" placeholder="Dr. Name" style="font-size:12px;padding:6px 10px;">
+                </div>
+                <div class="form-group">
+                  <label>Rx Number</label>
+                  <input class="form-input" type="text" placeholder="Prescription No." style="font-size:12px;padding:6px 10px;">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">GST Breakdown & Total</div></div>
+          <div class="panel-body">
+            <div class="gst-box">
+              <div class="gst-row"><span>Subtotal</span><span class="mono">₹2,962.15</span></div>
+              <div class="gst-row"><span>Discount</span><span class="mono text-red">- ₹148.00</span></div>
+              <div class="gst-row"><span>CGST (avg 4.25%)</span><span class="mono">₹120.70</span></div>
+              <div class="gst-row"><span>SGST (avg 4.25%)</span><span class="mono">₹120.70</span></div>
+              <div class="gst-row"><span>IGST</span><span class="mono">₹0.00</span></div>
+              <div class="gst-row"><span>Round Off</span><span class="mono">- ₹0.55</span></div>
+              <div class="gst-row total"><span>GRAND TOTAL</span><span class="mono text-accent" style="font-size:18px;">₹3,055.00</span></div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;">
+              <button class="btn btn-primary" style="flex:1;">💾 Save & Print</button>
+              <button class="btn btn-ghost" style="flex:1;">📧 Send SMS</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INVENTORY PAGE ===== -->
+    <div id="page-inventory" class="page-section fadein">
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-sm">+ Stock Adjustment</button>
+        <button class="btn btn-ghost btn-sm">📦 Transfer Stock</button>
+        <button class="btn btn-ghost btn-sm">⚠️ Damage Entry</button>
+        <button class="btn btn-ghost btn-sm">🔍 Barcode Lookup</button>
+        <button class="btn btn-ghost btn-sm">📥 Import CSV</button>
+        <div style="margin-left:auto;display:flex;gap:8px;">
+          <input class="form-input" style="width:200px;" placeholder="🔍 Search product/batch...">
+          <select class="form-input" style="width:140px;">
+            <option>All Categories</option>
+            <option>Antibiotics</option>
+            <option>Analgesics</option>
+            <option>Cardiac</option>
+            <option>Diabetic</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stats-grid" style="margin-bottom:20px;">
+        <div class="stat-card blue"><div class="stat-label">Total SKUs</div><div class="stat-value blue mono">1,847</div><div class="stat-change">active products</div></div>
+        <div class="stat-card green"><div class="stat-label">Total Stock Value</div><div class="stat-value green mono">₹48.2L</div><div class="stat-change up">at purchase price</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Low Stock Items</div><div class="stat-value yellow mono">23</div><div class="stat-change">below reorder level</div></div>
+        <div class="stat-card red"><div class="stat-label">Expired Stock</div><div class="stat-value red mono">8</div><div class="stat-change">needs disposal</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><div class="panel-dot blue"></div>Batch-wise Inventory</div>
+          <div style="display:flex;gap:8px;">
+            <span class="badge badge-blue">1,847 Products</span>
+            <button class="btn btn-ghost btn-sm">Export</button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0">
+          <table>
+            <thead>
+              <tr><th>Product / Generic</th><th>Batch</th><th>Mfg Date</th><th>Expiry</th><th>MRP</th><th>Stock</th><th>Reorder</th><th>Location</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div class="fw-bold" style="font-size:12px;">Azithromycin 500mg</div><div class="text-xs text-muted">Azithromycin · Cipla</div></td>
+                <td class="mono text-accent">AZ2401</td><td class="mono text-muted">Jan 2024</td>
+                <td class="mono text-green">Jan 2027</td><td class="mono">₹85</td>
+                <td class="mono fw-bold">340</td><td class="mono text-muted">100</td>
+                <td><span class="badge badge-purple">Rack A-3</span></td>
+                <td><span class="badge badge-green">IN STOCK</span></td>
+              </tr>
+              <tr>
+                <td><div class="fw-bold" style="font-size:12px;">Atorvastatin 10mg</div><div class="text-xs text-muted">Atorvastatin · Pfizer</div></td>
+                <td class="mono text-accent">AT2402</td><td class="mono text-muted">Feb 2024</td>
+                <td class="mono text-yellow">May 2026</td><td class="mono">₹120</td>
+                <td class="mono fw-bold text-yellow">45</td><td class="mono text-muted">200</td>
+                <td><span class="badge badge-purple">Rack B-1</span></td>
+                <td><span class="badge badge-yellow">LOW STOCK</span></td>
+              </tr>
+              <tr>
+                <td><div class="fw-bold" style="font-size:12px;">Amoxicillin 250mg</div><div class="text-xs text-muted">Amoxicillin · Ranbaxy</div></td>
+                <td class="mono text-accent">AM2204</td><td class="mono text-muted">Apr 2022</td>
+                <td class="mono text-red">Apr 2024</td><td class="mono">₹48</td>
+                <td class="mono fw-bold text-red">28</td><td class="mono text-muted">150</td>
+                <td><span class="badge badge-purple">Rack C-2</span></td>
+                <td><span class="badge badge-red">EXPIRED</span></td>
+              </tr>
+              <tr>
+                <td><div class="fw-bold" style="font-size:12px;">Metformin 500mg</div><div class="text-xs text-muted">Metformin HCL · Sun</div></td>
+                <td class="mono text-accent">MF2403</td><td class="mono text-muted">Mar 2024</td>
+                <td class="mono text-green">Mar 2027</td><td class="mono">₹35</td>
+                <td class="mono fw-bold">820</td><td class="mono text-muted">300</td>
+                <td><span class="badge badge-purple">Rack A-7</span></td>
+                <td><span class="badge badge-green">IN STOCK</span></td>
+              </tr>
+              <tr>
+                <td><div class="fw-bold" style="font-size:12px;">Omeprazole 20mg</div><div class="text-xs text-muted">Omeprazole · Dr. Reddy</div></td>
+                <td class="mono text-accent">OM2401</td><td class="mono text-muted">Dec 2023</td>
+                <td class="mono text-yellow">Mar 2026</td><td class="mono">₹55</td>
+                <td class="mono fw-bold text-yellow">120</td><td class="mono text-muted">150</td>
+                <td><span class="badge badge-purple">Rack D-4</span></td>
+                <td><span class="badge badge-yellow">NEAR EXPIRY</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== GST PAGE ===== -->
+    <div id="page-gst" class="page-section fadein">
+      <div class="stats-grid" style="margin-bottom:20px;">
+        <div class="stat-card green"><div class="stat-label">GST Collected (Output)</div><div class="stat-value green mono">₹84,230</div><div class="stat-change">March 2026</div></div>
+        <div class="stat-card blue"><div class="stat-label">Input Tax Credit</div><div class="stat-value blue mono">₹42,100</div><div class="stat-change">Available ITC</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Net GST Payable</div><div class="stat-value yellow mono">₹42,130</div><div class="stat-change">After ITC set-off</div></div>
+        <div class="stat-card red"><div class="stat-label">GSTR-1 Due</div><div class="stat-value red mono">3 Days</div><div class="stat-change">File by 11th March</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-dot blue"></div>GST Summary — March 2026</div>
+          </div>
+          <div class="panel-body">
+            <div class="gst-box">
+              <div class="gst-row"><span>CGST Output</span><span class="mono text-green">₹42,115</span></div>
+              <div class="gst-row"><span>SGST Output</span><span class="mono text-green">₹42,115</span></div>
+              <div class="gst-row"><span>IGST Output</span><span class="mono text-green">₹0</span></div>
+              <div class="gst-row"><span>CGST Input Credit</span><span class="mono text-red">- ₹21,050</span></div>
+              <div class="gst-row"><span>SGST Input Credit</span><span class="mono text-red">- ₹21,050</span></div>
+              <div class="gst-row total"><span>Net Tax Payable</span><span class="mono text-yellow">₹42,130</span></div>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:8px;">
+              <button class="btn btn-primary" style="flex:1;">📋 File GSTR-1</button>
+              <button class="btn btn-ghost" style="flex:1;">📄 GSTR-3B</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><div class="panel-dot green"></div>GST Reports</div>
+          </div>
+          <div class="panel-body">
+            <div class="alert-list">
+              <div class="alert-item info" style="cursor:pointer;"><span class="alert-icon">📊</span><div><div class="alert-title">GSTR-1 (Outward Supplies)</div><div class="alert-desc">127 invoices · ₹4.8L taxable value</div></div><span style="margin-left:auto;color:var(--accent)">→</span></div>
+              <div class="alert-item info" style="cursor:pointer;"><span class="alert-icon">📊</span><div><div class="alert-title">GSTR-3B (Monthly Return)</div><div class="alert-desc">Summary return · due 20th March</div></div><span style="margin-left:auto;color:var(--accent)">→</span></div>
+              <div class="alert-item info" style="cursor:pointer;"><span class="alert-icon">📊</span><div><div class="alert-title">GST Purchase Register</div><div class="alert-desc">48 purchase bills · ITC: ₹42,100</div></div><span style="margin-left:auto;color:var(--accent)">→</span></div>
+              <div class="alert-item info" style="cursor:pointer;"><span class="alert-icon">📊</span><div><div class="alert-title">HSN-wise Summary</div><div class="alert-desc">12 HSN codes in use this month</div></div><span style="margin-left:auto;color:var(--accent)">→</span></div>
+              <div class="alert-item info" style="cursor:pointer;"><span class="alert-icon">📊</span><div><div class="alert-title">E-Way Bill Integration</div><span class="badge badge-green" style="margin-top:4px;">CONNECTED</span></div><span style="margin-left:auto;color:var(--accent)">→</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PRODUCTS PAGE ===== -->
+    <div id="page-products" class="page-section fadein">
+      <div style="display:flex;gap:10px;margin-bottom:20px;">
+        <button class="btn btn-primary btn-sm">+ Add Product</button>
+        <button class="btn btn-ghost btn-sm">📥 Import Catalogue</button>
+        <button class="btn btn-ghost btn-sm">🖨 Print Barcodes</button>
+        <div style="margin-left:auto;">
+          <input class="form-input" style="width:250px;" placeholder="🔍 Search by name, generic, HSN...">
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><div class="panel-dot blue"></div>Product / Medicine Master</div>
+          <span class="badge badge-blue">1,847 Products</span>
+        </div>
+        <div class="panel-body" style="padding:0">
+          <table>
+            <thead>
+              <tr><th>Product Name</th><th>Generic</th><th>Brand</th><th>Mfr</th><th>HSN</th><th>GST</th><th>MRP</th><th>Schedule</th><th>Storage</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="fw-bold" style="font-size:12px;">Amoxicillin 500mg Cap</td>
+                <td class="text-muted text-sm">Amoxicillin</td>
+                <td class="text-sm">Mox-500</td>
+                <td class="text-sm text-muted">Cipla</td>
+                <td class="mono text-xs">30041090</td>
+                <td><span class="badge badge-blue">12%</span></td>
+                <td class="mono">₹120</td>
+                <td><span class="badge badge-red">Sch H</span></td>
+                <td class="text-xs text-muted">Cool &amp; Dry</td>
+                <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+              </tr>
+              <tr>
+                <td class="fw-bold" style="font-size:12px;">Atorvastatin 10mg Tab</td>
+                <td class="text-muted text-sm">Atorvastatin</td>
+                <td class="text-sm">Lipitor</td>
+                <td class="text-sm text-muted">Pfizer</td>
+                <td class="mono text-xs">29333990</td>
+                <td><span class="badge badge-blue">12%</span></td>
+                <td class="mono">₹135</td>
+                <td><span class="badge badge-yellow">Sch H</span></td>
+                <td class="text-xs text-muted">Below 30°C</td>
+                <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+              </tr>
+              <tr>
+                <td class="fw-bold" style="font-size:12px;">Paracetamol 500mg Tab</td>
+                <td class="text-muted text-sm">Paracetamol</td>
+                <td class="text-sm">Crocin</td>
+                <td class="text-sm text-muted">GSK</td>
+                <td class="mono text-xs">29242900</td>
+                <td><span class="badge badge-green">0%</span></td>
+                <td class="mono">₹42</td>
+                <td><span class="badge badge-blue">OTC</span></td>
+                <td class="text-xs text-muted">Room Temp</td>
+                <td><button class="btn btn-ghost btn-sm">Edit</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EXPIRY PAGE ===== -->
+    <div id="page-expiry" class="page-section fadein">
+      <div class="stats-grid" style="margin-bottom:20px;">
+        <div class="stat-card red"><div class="stat-label">Expired (Block)</div><div class="stat-value red mono">8</div><div class="stat-change">immediate action</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Expiry &lt; 30 Days</div><div class="stat-value yellow mono">7</div><div class="stat-change">critical</div></div>
+        <div class="stat-card blue"><div class="stat-label">Expiry 30-90 Days</div><div class="stat-value blue mono">40</div><div class="stat-change">near expiry</div></div>
+        <div class="stat-card green"><div class="stat-label">Value at Risk</div><div class="stat-value green mono">₹1.8L</div><div class="stat-change">potential loss</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title"><div class="panel-dot red pulse"></div>Expired — Blocked Stock</div><button class="btn btn-ghost btn-sm">Return to Supplier</button></div>
+          <div class="panel-body">
+            <div class="expiry-item">
+              <div><div class="expiry-name">Amoxicillin 250mg · <span class="mono text-xs">AM2204</span></div><div class="expiry-batch">28 units · Rack C-2 · Ranbaxy</div></div>
+              <span class="expiry-days text-red">EXPIRED Apr 2024</span>
+            </div>
+            <div class="expiry-item">
+              <div><div class="expiry-name">Vitamin C 500mg · <span class="mono text-xs">VC2203</span></div><div class="expiry-batch">60 units · Rack F-1 · Himalaya</div></div>
+              <span class="expiry-days text-red">EXPIRED Jan 2024</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title"><div class="panel-dot yellow pulse"></div>Near Expiry — Next 30 Days</div></div>
+          <div class="panel-body">
+            <div class="expiry-item">
+              <div><div class="expiry-name">Omeprazole 20mg · <span class="mono text-xs">OM2401</span></div><div class="expiry-batch">120 units · Dr. Reddy</div></div>
+              <span class="expiry-days text-yellow">21 days left</span>
+            </div>
+            <div class="expiry-item">
+              <div><div class="expiry-name">Metformin 850mg · <span class="mono text-xs">MF2399</span></div><div class="expiry-batch">55 units · Sun Pharma</div></div>
+              <span class="expiry-days text-yellow">28 days left</span>
+            </div>
+            <div class="expiry-item">
+              <div><div class="expiry-name">Cefixime 200mg · <span class="mono text-xs">CF2401</span></div><div class="expiry-batch">80 units · Lupin</div></div>
+              <span class="expiry-days text-yellow">14 days left</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== REPORTS PAGE ===== -->
+    <div id="page-reports" class="page-section fadein">
+      <div class="quick-actions" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+        <div class="quick-action"><div class="qa-icon">📈</div><div class="qa-label">Daily Sales</div></div>
+        <div class="quick-action"><div class="qa-icon">📦</div><div class="qa-label">Stock Report</div></div>
+        <div class="quick-action"><div class="qa-icon">⏰</div><div class="qa-label">Expiry Report</div></div>
+        <div class="quick-action"><div class="qa-icon">💰</div><div class="qa-label">P&L Statement</div></div>
+        <div class="quick-action"><div class="qa-icon">📋</div><div class="qa-label">GSTR Reports</div></div>
+        <div class="quick-action"><div class="qa-icon">🛒</div><div class="qa-label">Purchase Report</div></div>
+        <div class="quick-action"><div class="qa-icon">📊</div><div class="qa-label">Profit Margin</div></div>
+        <div class="quick-action"><div class="qa-icon">👥</div><div class="qa-label">Customer Report</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title"><div class="panel-dot blue"></div>Daily Sales Summary — 10 Mar 2026</div><button class="btn btn-ghost btn-sm">📥 Export Excel</button></div>
+        <div class="panel-body">
+          <div class="form-grid" style="margin-bottom:16px;">
+            <div class="form-group"><label>From Date</label><input class="form-input" type="date" value="2026-03-01"></div>
+            <div class="form-group"><label>To Date</label><input class="form-input" type="date" value="2026-03-10"></div>
+            <div class="form-group"><label>Report Type</label><select class="form-input"><option>All Invoices</option><option>Retail Only</option><option>Wholesale Only</option></select></div>
+          </div>
+          <table>
+            <thead><tr><th>Date</th><th>Invoices</th><th>Gross Sales</th><th>Discount</th><th>Tax</th><th>Net Sales</th><th>Returns</th><th>Net Revenue</th></tr></thead>
+            <tbody>
+              <tr><td class="mono">10-Mar</td><td class="mono">127</td><td class="mono">₹88,200</td><td class="mono text-red">₹2,100</td><td class="mono">₹7,840</td><td class="mono fw-bold text-accent">₹84,230</td><td class="mono text-red">₹1,200</td><td class="mono fw-bold text-green">₹83,030</td></tr>
+              <tr><td class="mono">09-Mar</td><td class="mono">118</td><td class="mono">₹74,500</td><td class="mono text-red">₹1,800</td><td class="mono">₹6,420</td><td class="mono fw-bold text-accent">₹72,700</td><td class="mono text-red">₹800</td><td class="mono fw-bold text-green">₹71,900</td></tr>
+              <tr><td class="mono">08-Mar</td><td class="mono">142</td><td class="mono">₹98,400</td><td class="mono text-red">₹3,200</td><td class="mono">₹8,900</td><td class="mono fw-bold text-accent">₹95,200</td><td class="mono text-red">₹2,400</td><td class="mono fw-bold text-green">₹92,800</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SETTINGS PAGE ===== -->
+    <div id="page-settings" class="page-section fadein">
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">🏢 Company Profile</div></div>
+          <div class="panel-body">
+            <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+              <div class="form-group"><label>Company Name</label><input class="form-input" value="Sharma Medical Store"></div>
+              <div class="form-group"><label>GSTIN</label><input class="form-input" value="29AABCU9603R1ZB"></div>
+              <div class="form-group"><label>Drug License No.</label><input class="form-input" value="DL-MH-12345-A"></div>
+              <div class="form-group"><label>Financial Year</label><select class="form-input"><option>2025-26</option><option>2024-25</option></select></div>
+              <div class="form-group"><label>State</label><select class="form-input"><option>Maharashtra</option><option>Karnataka</option></select></div>
+              <div class="form-group"><label>Branch</label><input class="form-input" value="Main Branch - Mumbai"></div>
+            </div>
+            <div class="divider"></div>
+            <button class="btn btn-primary btn-sm">💾 Save Company Info</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">🔌 Integrations</div></div>
+          <div class="panel-body">
+            <div class="alert-list">
+              <div class="alert-item info"><span class="alert-icon">📋</span><div><div class="alert-title">GST E-Invoice System</div><div class="alert-desc">NIC Portal · IRN Generation</div></div><span class="badge badge-green" style="margin-left:auto;">LIVE</span></div>
+              <div class="alert-item info"><span class="alert-icon">🚚</span><div><div class="alert-title">E-Way Bill (NIC)</div><div class="alert-desc">Auto-generate for invoices &gt;₹50K</div></div><span class="badge badge-green" style="margin-left:auto;">LIVE</span></div>
+              <div class="alert-item warn"><span class="alert-icon">🏦</span><div><div class="alert-title">Payment Gateway</div><div class="alert-desc">Razorpay / PhonePe integration</div></div><span class="badge badge-yellow" style="margin-left:auto;">SETUP</span></div>
+              <div class="alert-item warn"><span class="alert-icon">📱</span><div><div class="alert-title">Mobile App (Sales Rep)</div><div class="alert-desc">Android / iOS field sales app</div></div><span class="badge badge-yellow" style="margin-left:auto;">BETA</span></div>
+              <div class="alert-item info"><span class="alert-icon">☁️</span><div><div class="alert-title">Cloud Backup</div><div class="alert-desc">AWS · Daily auto-backup enabled</div></div><span class="badge badge-green" style="margin-left:auto;">ACTIVE</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== REGULATORY PAGE ===== -->
+    <div id="page-regulatory" class="page-section fadein">
+      <div class="stats-grid" style="margin-bottom:20px;">
+        <div class="stat-card blue"><div class="stat-label">Drug License Valid</div><div class="stat-value blue mono">Valid</div><div class="stat-change">Expires Dec 2026</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Schedule H Drugs</div><div class="stat-value yellow mono">248</div><div class="stat-change">tracked products</div></div>
+        <div class="stat-card red"><div class="stat-label">Schedule H1 Drugs</div><div class="stat-value red mono">12</div><div class="stat-change">requires strict log</div></div>
+        <div class="stat-card green"><div class="stat-label">CDSCO Compliance</div><div class="stat-value green mono">100%</div><div class="stat-change">all records updated</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title"><div class="panel-dot red"></div>Schedule H/H1 Prescription Log</div><button class="btn btn-ghost btn-sm">Export for CDSCO</button></div>
+        <div class="panel-body" style="padding:0">
+          <table>
+            <thead><tr><th>Date</th><th>Drug Name</th><th>Schedule</th><th>Patient</th><th>Doctor</th><th>Rx No.</th><th>Qty Sold</th><th>Invoice</th></tr></thead>
+            <tbody>
+              <tr><td class="mono text-muted">10-Mar</td><td class="fw-bold text-sm">Alprazolam 0.25mg</td><td><span class="badge badge-red">H1</span></td><td>Ramesh Patel</td><td>Dr. Sharma</td><td class="mono text-accent">RX-2401</td><td class="mono">1 strip</td><td class="mono text-accent">INV-4820</td></tr>
+              <tr><td class="mono text-muted">10-Mar</td><td class="fw-bold text-sm">Amoxicillin 500mg</td><td><span class="badge badge-yellow">H</span></td><td>Sunita Devi</td><td>Dr. Verma</td><td class="mono text-accent">RX-2402</td><td class="mono">2 strips</td><td class="mono text-accent">INV-4819</td></tr>
+              <tr><td class="mono text-muted">09-Mar</td><td class="fw-bold text-sm">Tramadol 50mg</td><td><span class="badge badge-red">H1</span></td><td>Ahmed Khan</td><td>Dr. Joshi</td><td class="mono text-accent">RX-2400</td><td class="mono">10 tabs</td><td class="mono text-accent">INV-4817</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== OTHER PLACEHOLDER PAGES ===== -->
+    <div id="page-purchase" class="page-section fadein">
+      <div class="stats-grid" style="margin-bottom:20px;">
+        <div class="stat-card blue"><div class="stat-label">Purchase This Month</div><div class="stat-value blue mono">₹18.4L</div></div>
+        <div class="stat-card green"><div class="stat-label">Open POs</div><div class="stat-value green mono">8</div></div>
+        <div class="stat-card yellow"><div class="stat-label">Pending GRNs</div><div class="stat-value yellow mono">3</div></div>
+        <div class="stat-card red"><div class="stat-label">Pending Payments</div><div class="stat-value red mono">₹4.2L</div></div>
+      </div>
+      <div class="tabs"><div class="tab active">Purchase Orders</div><div class="tab">GRN Entry</div><div class="tab">Purchase Invoice</div><div class="tab">Purchase Returns</div></div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title"><div class="panel-dot blue"></div>Purchase Orders</div><button class="btn btn-primary btn-sm">+ New PO</button></div>
+        <div class="panel-body" style="padding:0">
+          <table>
+            <thead><tr><th>PO Number</th><th>Supplier</th><th>Date</th><th>Items</th><th>Value</th><th>GST</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="mono text-accent">PO-2024</td><td>Cipla Distributors</td><td class="mono text-muted">08-Mar</td><td class="mono">24</td><td class="mono">₹1,24,500</td><td class="mono">₹14,940</td><td><span class="badge badge-yellow">PENDING</span></td><td><button class="btn btn-ghost btn-sm">GRN</button></td></tr>
+              <tr><td class="mono text-accent">PO-2023</td><td>Sun Pharma Ltd.</td><td class="mono text-muted">07-Mar</td><td class="mono">18</td><td class="mono">₹88,200</td><td class="mono">₹10,584</td><td><span class="badge badge-green">RECEIVED</span></td><td><button class="btn btn-ghost btn-sm">View</button></td></tr>
+              <tr><td class="mono text-accent">PO-2022</td><td>Abbott India</td><td class="mono text-muted">05-Mar</td><td class="mono">31</td><td class="mono">₹2,12,000</td><td class="mono">₹25,440</td><td><span class="badge badge-blue">IN TRANSIT</span></td><td><button class="btn btn-ghost btn-sm">Track</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-sales" class="page-section fadein">
+      <div class="stats-grid"><div class="stat-card blue"><div class="stat-label">Today's Revenue</div><div class="stat-value blue mono">₹84,230</div></div><div class="stat-card green"><div class="stat-label">Monthly Sales</div><div class="stat-value green mono">₹6.8L</div></div><div class="stat-card yellow"><div class="stat-label">Outstanding</div><div class="stat-value yellow mono">₹2.3L</div></div><div class="stat-card red"><div class="stat-label">Returns Today</div><div class="stat-value red mono">₹3,200</div></div></div>
+      <div class="panel" style="margin-top:16px;"><div class="panel-header"><div class="panel-title"><div class="panel-dot blue"></div>Sales Register</div><button class="btn btn-ghost btn-sm">Export</button></div><div class="panel-body" style="padding:0"><table><thead><tr><th>Invoice No.</th><th>Customer</th><th>Type</th><th>Items</th><th>Taxable</th><th>GST</th><th>Total</th><th>Payment</th><th>Status</th></tr></thead><tbody><tr><td class="mono text-accent">INV-4822</td><td>City Medical</td><td><span class="badge badge-blue">Wholesale</span></td><td>3</td><td class="mono">₹2,962</td><td class="mono">₹241</td><td class="mono fw-bold">₹3,055</td><td><span class="badge badge-orange">Credit</span></td><td><span class="badge badge-yellow">Draft</span></td></tr><tr><td class="mono text-accent">INV-4821</td><td>Retail Customer</td><td><span class="badge badge-green">Retail</span></td><td>5</td><td class="mono">₹845</td><td class="mono">₹0</td><td class="mono fw-bold">₹845</td><td><span class="badge badge-green">UPI</span></td><td><span class="badge badge-green">Paid</span></td></tr></tbody></table></div></div>
+    </div>
+
+    <div id="page-customers" class="page-section fadein">
+      <div class="panel"><div class="panel-header"><div class="panel-title"><div class="panel-dot blue"></div>Customer Management</div><button class="btn btn-primary btn-sm">+ Add Customer</button></div><div class="panel-body" style="padding:0"><table><thead><tr><th>Name</th><th>GSTIN</th><th>Drug Lic.</th><th>Credit Limit</th><th>Outstanding</th><th>Payment Terms</th><th>Status</th></tr></thead><tbody><tr><td><div class="fw-bold text-sm">City Medical Store</div><div class="text-xs text-muted">📞 98765 43210</div></td><td class="mono text-xs">29AABCU9603R1ZB</td><td class="mono text-xs text-green">DL-MH-001</td><td class="mono">₹2,00,000</td><td class="mono text-yellow">₹48,500</td><td class="text-sm">30 days</td><td><span class="badge badge-green">Active</span></td></tr><tr><td><div class="fw-bold text-sm">HealthPlus Pharmacy</div><div class="text-xs text-muted">📞 87654 32109</div></td><td class="mono text-xs">29AADCE1234F1ZC</td><td class="mono text-xs text-green">DL-MH-002</td><td class="mono">₹1,00,000</td><td class="mono text-red">₹1,12,000</td><td class="text-sm">15 days</td><td><span class="badge badge-red">Over Limit</span></td></tr></tbody></table></div></div>
+    </div>
+
+    <div id="page-suppliers" class="page-section fadein">
+      <div class="panel"><div class="panel-header"><div class="panel-title"><div class="panel-dot green"></div>Supplier Management</div><button class="btn btn-primary btn-sm">+ Add Supplier</button></div><div class="panel-body" style="padding:0"><table><thead><tr><th>Supplier</th><th>GSTIN</th><th>Drug License</th><th>Products</th><th>Purchases (MTD)</th><th>Outstanding</th><th>Status</th></tr></thead><tbody><tr><td><div class="fw-bold text-sm">Cipla Distributors</div><div class="text-xs text-muted">Mumbai · Pharma</div></td><td class="mono text-xs">27AABCC1234A1ZP</td><td class="mono text-xs text-green">DL-WS-4421</td><td class="mono">142</td><td class="mono text-green">₹1,24,500</td><td class="mono text-yellow">₹68,000</td><td><span class="badge badge-green">Verified</span></td></tr><tr><td><div class="fw-bold text-sm">Sun Pharma Ltd.</div><div class="text-xs text-muted">Vadodara · Manufacturer</div></td><td class="mono text-xs">24AAECS1234B1ZQ</td><td class="mono text-xs text-green">DL-MF-8821</td><td class="mono">89</td><td class="mono text-green">₹88,200</td><td class="mono">₹0</td><td><span class="badge badge-green">Verified</span></td></tr></tbody></table></div></div>
+    </div>
+
+    <div id="page-accounts" class="page-section fadein">
+      <div class="stats-grid"><div class="stat-card green"><div class="stat-label">Cash in Hand</div><div class="stat-value green mono">₹42,800</div></div><div class="stat-card blue"><div class="stat-label">Bank Balance</div><div class="stat-value blue mono">₹3.8L</div></div><div class="stat-card yellow"><div class="stat-label">Receivables</div><div class="stat-value yellow mono">₹2.3L</div></div><div class="stat-card red"><div class="stat-label">Payables</div><div class="stat-value red mono">₹4.2L</div></div></div>
+      <div class="grid-2" style="margin-top:16px;"><div class="panel"><div class="panel-header"><div class="panel-title">P&L (March 2026)</div></div><div class="panel-body"><div class="gst-box"><div class="gst-row"><span>Gross Sales</span><span class="mono text-green">₹6,84,200</span></div><div class="gst-row"><span>Purchase Cost</span><span class="mono text-red">- ₹4,12,400</span></div><div class="gst-row"><span>Gross Profit</span><span class="mono text-accent">₹2,71,800</span></div><div class="gst-row"><span>Operating Expenses</span><span class="mono text-red">- ₹82,000</span></div><div class="gst-row total"><span>Net Profit</span><span class="mono text-green">₹1,89,800</span></div></div></div></div><div class="panel"><div class="panel-header"><div class="panel-title">Recent Vouchers</div></div><div class="panel-body" style="padding:0"><table><thead><tr><th>Type</th><th>Date</th><th>Party</th><th>Amount</th></tr></thead><tbody><tr><td><span class="badge badge-green">Receipt</span></td><td class="mono text-muted">10-Mar</td><td>City Medical</td><td class="mono text-green">₹48,500</td></tr><tr><td><span class="badge badge-red">Payment</span></td><td class="mono text-muted">10-Mar</td><td>Cipla Dist.</td><td class="mono text-red">₹68,000</td></tr><tr><td><span class="badge badge-blue">Journal</span></td><td class="mono text-muted">09-Mar</td><td>GST Adjust</td><td class="mono">₹14,940</td></tr></tbody></table></div></div></div>
+    </div>
+
+    <div id="page-returns" class="page-section fadein">
+      <div class="tabs"><div class="tab active">Sales Returns</div><div class="tab">Purchase Returns</div><div class="tab">Expired Returns</div></div>
+      <div class="panel"><div class="panel-header"><div class="panel-title"><div class="panel-dot yellow"></div>Return Management</div><button class="btn btn-primary btn-sm">+ New Return</button></div><div class="panel-body" style="padding:0"><table><thead><tr><th>Return No.</th><th>Ref Invoice</th><th>Party</th><th>Type</th><th>Items</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead><tbody><tr><td class="mono text-accent">RET-121</td><td class="mono text-muted">INV-4800</td><td>HealthPlus</td><td><span class="badge badge-yellow">Sales Return</span></td><td>2</td><td class="mono text-red">- ₹1,200</td><td class="mono text-muted">09-Mar</td><td><span class="badge badge-green">Processed</span></td></tr><tr><td class="mono text-accent">RET-120</td><td class="mono text-muted">PO-2015</td><td>Cipla Dist.</td><td><span class="badge badge-orange">Exp. Return</span></td><td>1 batch</td><td class="mono text-green">₹2,800</td><td class="mono text-muted">07-Mar</td><td><span class="badge badge-yellow">Pending</span></td></tr></tbody></table></div></div>
+    </div>
+
+    <div id="page-security" class="page-section fadein">
+      <div class="grid-2">
+        <div class="panel"><div class="panel-header"><div class="panel-title"><div class="panel-dot blue"></div>User Roles & Permissions</div><button class="btn btn-primary btn-sm">+ Add User</button></div><div class="panel-body" style="padding:0"><table><thead><tr><th>User</th><th>Role</th><th>Access Level</th><th>Last Login</th><th>Status</th></tr></thead><tbody><tr><td><div class="fw-bold text-sm">Rajesh Kumar</div></td><td><span class="badge badge-red">Admin</span></td><td class="text-sm">Full Access</td><td class="mono text-xs text-muted">10-Mar 09:14</td><td><span class="badge badge-green">Active</span></td></tr><tr><td><div class="fw-bold text-sm">Priya Sharma</div></td><td><span class="badge badge-blue">Billing</span></td><td class="text-sm">Sales Only</td><td class="mono text-xs text-muted">10-Mar 08:52</td><td><span class="badge badge-green">Active</span></td></tr><tr><td><div class="fw-bold text-sm">Mohan Das</div></td><td><span class="badge badge-purple">Store</span></td><td class="text-sm">Inventory Only</td><td class="mono text-xs text-muted">09-Mar 17:40</td><td><span class="badge badge-green">Active</span></td></tr></tbody></table></div></div>
+        <div class="panel"><div class="panel-header"><div class="panel-title"><div class="panel-dot green"></div>Audit Trail</div></div><div class="panel-body" style="padding:0"><table><thead><tr><th>User</th><th>Action</th><th>Module</th><th>Time</th></tr></thead><tbody><tr><td class="text-sm fw-bold">Rajesh</td><td class="text-xs text-green">Created Invoice</td><td><span class="badge badge-blue">Billing</span></td><td class="mono text-xs text-muted">10-Mar 10:45</td></tr><tr><td class="text-sm fw-bold">Priya</td><td class="text-xs text-yellow">Edited Product</td><td><span class="badge badge-purple">Master</span></td><td class="mono text-xs text-muted">10-Mar 10:12</td></tr><tr><td class="text-sm fw-bold">Mohan</td><td class="text-xs text-blue">Stock Adjusted</td><td><span class="badge badge-green">Inventory</span></td><td class="mono text-xs text-muted">10-Mar 09:38</td></tr><tr><td class="text-sm fw-bold">Priya</td><td class="text-xs text-red">Deleted Draft</td><td><span class="badge badge-blue">Billing</span></td><td class="mono text-xs text-muted">09-Mar 17:22</td></tr></tbody></table></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+  const page = document.getElementById('page-' + id);
+  if (page) { page.classList.add('active'); page.classList.remove('fadein'); void page.offsetWidth; page.classList.add('fadein'); }
+
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'")) n.classList.add('active');
+  });
+
+  const titles = {
+    dashboard: 'Dashboard <span>Overview</span>',
+    billing: 'Sales & <span>Billing</span>',
+    inventory: 'Inventory <span>Management</span>',
+    purchase: 'Purchase <span>Management</span>',
+    sales: 'Sales <span>Register</span>',
+    products: 'Product / Medicine <span>Master</span>',
+    customers: 'Customer <span>Management</span>',
+    suppliers: 'Supplier <span>Management</span>',
+    gst: 'GST / Tax <span>Management</span>',
+    expiry: 'Expiry & Batch <span>Control</span>',
+    regulatory: 'Drug <span>Compliance</span>',
+    accounts: 'Accounts & <span>Finance</span>',
+    returns: 'Returns <span>Management</span>',
+    reports: 'Reports & <span>Analytics</span>',
+    settings: 'Company & <span>Settings</span>',
+    security: 'Security & <span>Audit</span>'
+  };
+  document.getElementById('page-title').innerHTML = titles[id] || id;
+}
+
+// Tab switching
+document.querySelectorAll('.tabs').forEach(tabContainer => {
+  tabContainer.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabContainer.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+});
+</script>
+</body>
+</html>
